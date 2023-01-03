@@ -196,3 +196,63 @@ addEventListener를 통한 이벤트 수신 코드는 명령형 코드이기에 
 리액트는 새로운 list 아이템을 동적으로 추가하면 부모 컴포넌트의 마지막 자식 컴포넌트로 렌더링하고, 모든 list 아이템을 업데이트하여 DOM 요소를 교체한다. 
 다시 말하자면 리액트는 list 내의 아이템을 식별할 수 없기 때문에 추가된 아이템이 어디에 렌더링되어야 하는지 알지 못한다.
 따라서 새로운 아이템이 어디에 추가되어야 하는지 리액트에게 알려주어야 하는데 그 방법이 바로 `key props`이다.
+
+<br>
+
+---
+> 2023-01-03
+
+<br>
+
+## 조건에 따라 출력하기
+
+### 삼항 연산자
+```        
+{filteredExpenses.length === 0 ? (
+    <p>No expenses found.</p>
+    ) : (
+    filteredExpenses.map(expense => 
+        <ExpenseItem 
+            key={expense.id}
+            title={expense.title} 
+            amount={expense.amount} 
+            date={expense.date} 
+        />
+    ))
+}
+```
+<br>
+
+### && 연산자
+```
+{filteredExpenses.length === 0 && <p>No expenses found.</p>}
+{filteredExpenses.length === 0 && 
+    filteredExpenses.map(expense => 
+        <ExpenseItem 
+            key={expense.id}
+            title={expense.title} 
+            amount={expense.amount} 
+            date={expense.date} 
+        />
+    )
+}
+```
+
+### js 코드
+```
+let expensesContent = <p>No expenses found.</p>;
+if (filteredExpenses.length> 0) {
+    expensesContent = filteredExpenses.map(expense => 
+        <ExpenseItem 
+            key={expense.id}
+            title={expense.title} 
+            amount={expense.amount} 
+            date={expense.date} 
+        />
+    );
+}
+
+return (
+    {expensesContent}
+);
+```
