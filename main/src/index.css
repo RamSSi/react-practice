@@ -1,15 +1,26 @@
+<<<<<<< HEAD
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
 
+=======
+>>>>>>> style-practice
 * {
   box-sizing: border-box;
 }
 
 html {
+<<<<<<< HEAD
   font-family: 'Noto Sans JP', sans-serif;
+=======
+  font-family: sans-serif;
+>>>>>>> style-practice
 }
 
 body {
   margin: 0;
+<<<<<<< HEAD
   background-color: #3f3f3f;
 }
 
+=======
+}
+>>>>>>> style-practice

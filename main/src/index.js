@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import React from 'react';
+>>>>>>> style-practice
 import ReactDOM from 'react-dom/client';
 
 import './index.css';
