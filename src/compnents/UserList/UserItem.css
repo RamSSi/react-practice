@@ -1,0 +1,10 @@
+.user-item {
+  border: 1px solid #a7a7a7;
+  padding: 0.3rem 0.5rem;
+  margin: 0.3rem;
+  font-weight: 700;
+}
+
+li {
+  list-style: none;
+}
