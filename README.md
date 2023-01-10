@@ -462,3 +462,264 @@ CSS 모듈을 통해 스타일이 적용된 요소에는 styled-component와는 
 
 <br><br>
 
+> 2023-01-08
+
+<br>
+
+# JSX Limitations
+## JSX 요소들이 인접해 있는 경우 에러 발생
+▶ JSX에서는 하나의 루트 요소만 존재해야 함, 루트 수준에서 여러 JSX를 반환할 수 없음 
+
+<br>
+<img src="./readme/2023-01-08-jsx.png" />
+
+- JSX 코드는 결국 JS의 react.createElement로 변환됨
+- 실제로 자바스크립트에서 함수값을 반환할 때에도 하나의 값만을 반환할 수 있음
+
+<br>
+
+## Div Soup
+실제 DOM으로 렌더링될 때 많은 컴포넌트들이 중첩될 수 있기 때문에 div 등의 요소로 감싸주어야 한다.
+이러한 이유로 최종적으로 브라우저에서 보는 결과에 필요없는 div 태그가 매우 많아질 수 있다. jsx를 사용하기 위해서는 필요한 div이지만 semantic하지 못한 코드가 많아지게 된다.
+
+<br>
+
+## 해결 방법 : Wrapper
+JSX의 규칙(하나의 루트 요소만 반환)을 만족하기 위한 wrap 요소로, div로 감쌀 필요 없이 wrapper로 감싸면 브라우저에 쓸모없는 코드가 나타나지 않음!
+
+<br>
+
+### Wrapper.js
+```
+const Wrapper = props => {
+  return props.children;
+}
+
+export default Wrapper;
+```
+<br>
+
+### 결과 코드
+<img src="./readme/2023-01-08-jsx1.png" />
+
+<br><br>
+
+# Fragments
+우리는 Wrapper 컴포넌트를 직접 만들지 않아도 된다. <strong>왜냐하면 리액트에서 제공해주니까!!!</strong>
+
+<br>
+
+## React fragment
+<img src="./readme/2023-01-08-jsx2.png" />
+
+``<Fragment></Fragment>`` 또는 ``<> </>``를 사용하면 실제 브라우저에는 나타나지 않지만 루트 요소로 반환이 가능하다. 불필요한 div 요소를 사용하지 않아도 된다는 뜻이다!
+
+<br>
+
+# Portals
+## React Portals
+우리는 모달을 직접 만들어 사용할 수 있다. 그러나 모달은 페이지에 직접적인 구조에 포함되지 않는 알림창일 뿐이다. 그래서 브라우저에 렌더링될 때 모달 요소를 볼 수 있는 코드는 좋은 코드로 취급되지 않는다.
+
+- 스크린 리더가 모달을 중요한 내용으로 착각하고 의도하지 않은 순서로 읽어버릴 수도 있다.
+- html 요소 안에 숨어서 어떤 요소로 인한 모달창인지 확인이 어려울 수 있다.
+
+<br>
+
+- 원하는 곳으로 컴포넌트를 이동시킬 수 있다. (portal)
+
+### index.html
+```
+...
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  
+  <div id="backdrop-root"></div>
+  <div id="overlay-root"></div>
+  <div id="root"></div>
+  ...
+</body>
+```
+<br>
+
+### Portal
+```
+return (
+  <React.Fragment>
+    {ReactDOM.createPortal(
+    <Backdrop onConfirm={props.onConfirm} />, 
+    document.getElementById("backdrop-root")
+  )}
+  {ReactDOM.createPortal(
+    <ModalOverlay 
+      title={props.title} 
+      message={props.message} 
+      onConfirm={props.onConfirm} 
+    />,
+    document.getElementById("overlay-root")
+  )}
+  </React.Fragment>
+);
+```
+<br>
+
+# Ref
+
+기존의 useState를 사용하여 input에 키보드를 누를 때마다 상태가 변경되었다.
+```
+<!-- useState -->
+const [enteredUsername, setEnteredUsername] = useState('');
+const [enteredAge, setEnteredAge] = useState('');
+
+<!-- state 변경 (onChange) -->
+const usernameChangeHandler = (event) => {
+  setEnteredUsername(event.target.value);
+};
+
+const ageChangeHandler = (event) => {
+  setEnteredAge(event.target.value);
+};
+```
+<br>
+
+## useRef
+
+키를 누를 때마다 상태를 확인하고 변경하는 것은 매우 번거롭다.
+Ref를 사용하면 현재 값을 바로 받아올 수 있다. 편리하다~
+
+```
+<!-- Ref 지정 -->
+const nameInputRef = useRef();
+const ageInputRef = useRef();
+```
+
+```
+<!-- Ref 사용 -->
+const enteredUsername = nameInputRef.current.value;
+const enteredAge = ageInputRef.currentvalue;
+```
+
+<br><br>
+
+> 2023-01-09
+
+<br>
+
+# Reducer
+리액트 개발자라면 꼭 알아야 하는 개념!
+- Effects : Side Effect란?
+- Reducers : Reducer가 있는 컴포넌트의 복잡한 state 관리 방법
+- Context : 앱 수준, 즉 여러 개의 컴포넌트에 영향을 주는 state
+  - 컴포넌트 간의 state 공유 및  state 업데이트를 쉽게 해주는 Context
+
+<br>
+
+## Side Effect
+리액트의 역할
+- JSX를 평가하고 렌더링 한다.
+- State와 Props를 관리한다.
+- 이벤트와 입력에 반응한다.
+- State와 Props의 변화에 따라 컴포넌트를 재평가하고, 필요에 따라 실제 DOM을 조작한다. 
+
+만약 서버와 통신할 때 Http 메시지를 전송해야 하지만, 이것은 리액트가 실행해야 하는 작업이 아니다. 리액트는 주로 UI를 렌더링하는 작업을 한다!
+
+<br>
+
+예를 들어 http 응답에 따라 어떤 state를 변경한다면 무한 루프에 빠질 수 있다. jsx 함수가 실행될 때마다 리퀘스트를 보내게 되면 리퀘스트에 대한 응답에 따라 state가 변경될 것이고, state가 변하면 jsx 함수가 재호출되기 때문이다.
+
+또 다른 예로는 로그인 시 로컬 스토리지에 있는 정보를 받아서 state 값을 변경할 경우, 무한 루프에 빠질 가능성이 존재한다.
+getItem을 통해 상태가 변경되면 App 컴포넌트 함수는 재실행되고, 또 getItem을 하게 될 것이다.
+
+<br>
+
+```
+function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  
+  const storedUserLoggedInInformation = localStorage.getItem('isLoggedIn');
+
+  if (storedUserLoggedInInformation === '1') {
+    setIsLoggedIn(true);
+  }
+...
+}
+```
+
+따라서 이러한 side effect를 위해 사용하는 리액트 훅을 사용해야 한다.
+
+<br>
+
+## useEffect
+useEffect는 실행할 함수와 의존성 배열을 인수로 받는다.
+
+함수는 의존성 배열이 변경될 때마다 실행된다. 따라서 side effect가 발생할 코드를 이 함수에 넣으면 된다.
+
+의존성 배열은 함수를 실행할 dependency들이 저장되는 배열이다.
+
+<br>
+
+```
+useEffect(() => {
+    const storedUserLoggedInInformation = localStorage.getItem('isLoggedIn');
+
+    if (storedUserLoggedInInformation === '1') {
+      setIsLoggedIn(true);
+    }
+  }, []
+);
+```
+위 경우에는 처음 컴포넌트 함수가 실행될 때에만 딱 한 번 실행된다.
+
+맨 처음에는 의존성이 아예 존재하지 않아 의존성 배열이 생겼을 때 실행되지만, 그 이후에는 의존성 배열의 변화가 없기 때문에 실행되지 않는다.
+
+<br>
+
+```
+useEffect(() => {
+    setFormIsValid(
+      enteredEmail.includes('@') && enteredPassword.trim().length > 6
+    );
+  }, [enteredEmail, enteredPassword]
+);
+```
+위 경우에는 입력받은 이메일과 비밀번호의 유효성을 검사하는 함수를 실행하기 위해 useEffect 훅을 사용한다.
+
+이메일과 패스워드가 변경될 때마다 유효성 검사가 필요하기 때문에 의존성 배열에 enteredEmail, enteredPassword를 넣어준다.
+
+<br>
+
+>useEffect의 역할은 side effect를 처리하는 것이다.
+<br>
+side effect에는 http 요청이나 데이터 저장 등이 있지만, 이외에도 키 입력에 따른 유효성 평가, 업데이트 등도 포함된다.
+
+<br>
+
+그러나 키를 입력할 때마다 상태가 변경되고, useEffect의 함수를 실행하기를 원하지는 않을 것이다. 키를 입력할 때마다 서버에 http 요청을 보내야 한다면 대량의 트래픽이 발생할테니 말이다.
+
+따라서 키를 입력할 때마다 상태를 변경하는 것이 아니라 사용자가 입력을 멈춘 시점에 입력 내용을 서버에 보내고 싶을 것이다. 이를 디바운싱(그룹화)이라고 한다. 
+
+사용자가 타이핑을 중지하고 일정 시간 후에 입력 내용을 모아 서버로 보내기에 useEffect 훅을 사용할 수 있다!
+
+<br>
+
+### Clean Up 함수
+```
+useEffect(() => {
+    setTimeout(() => {
+      setFormIsValid(
+        enteredEmail.includes('@') && enteredPassword.trim().length > 6
+      );
+    }, 500);
+
+    return () => {};
+  }, [enteredEmail, enteredPassword]
+);
+```
+``setTimeout()``을 이용하여 키 입력이 멈추고 500ms 이후에 유효성 검사를 실행한다. 
+
+만약 키 입력이 멈췄다가, 실행했다가, 멈췄다가, 실행했다가 를 반복하면 수많은 타이머가 겹쳐서 실행될 것이다. 이를 막기 위해 클린 업 함수를 사용한다.
+
+useEffect가 return하는 함수를 클린 업 함수라고 하는데, 이 함수는 useEffect 함수가 실행되기 직전, 컴포넌트가 제거되기 직전에 실행된다. (useEffect가 처음 실행되기 적전에는 실행되지 않음)
+
+따라서 이 함수를 통해 아직 끝나지 않은 타이머를 제거하고 가장 최근에 실행된 타이머만 500ms 이후 종료될 것이다.
+
+<br>
